@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>图像上传插件</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    ul {
+      list-style-type: none;
+    }
+    .buttons button {
+      border: none;
+      display: inline-block;
+      background-color: #256ef6;
+      color: white;
+      width: 33%;
+      height: 2em;
+      border-radius: 1em;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <ul class="buttons">
+    <li>
+      <button onclick="selectSingle()">选择图像-单选</button>
+      <div class="content1"></div>
+    </li>
+    <li>
+      <button onclick="selectMultiple()">选择图像-多选</button>
+      <div class="content2"></div>
+    </li>
+  </ul>
+  <script src="./uploadFile.js"></script>
+  <script src="./example.js"></script>
+  <script>
+    let content1 = document.querySelector('.content1')
+    // 单选
+    function selectSingle() {
+      pluginUploadFile.selectFiles().then(fileList => {
+        const elImg = commons.creatImg(fileList[0])
+        console.log(fileList, elImg)
+        // content1.appendChild(elImg)
+      }).catch(err => {
+        console.log(err)
+      })
+    }
+    // 多选
+    function selectMultiple() {
+      pluginUploadFile.selectFiles({
+        multiple: 'multiple',
+        filesMaxNo: 3
+      }).then(res => {
+        console.log(res)
+      }).catch(err => {
+        console.log(err)
+      })
+    }
+  </script>
+</body>
+</html>
