@@ -11,8 +11,8 @@
   // 全局配置
   var configs = {
     multiple: undefined, // 单次上传的最大张数
-    compressLimitSize: 1024, // 压缩触发界限
-    compressMaxSize: 500, // 图片最大压缩值
+    compressLimitSize: 200, // 文件大于多少进行压缩  单位KB
+    compressMinSize: 100, // 图片最小压缩值  单位KB
     errTip: {
       0: '节点插入错误',
       1: '取消选择',
@@ -33,12 +33,11 @@
     },
     /**
      * 压缩图片实现类
-     * @param path
-     * @param obj
-     * @param callback
-     * @param maxSize
+     * @param {readAsDataURL} path
+     * @param {Object} obj
+     * @return {Promise}
      */
-    canvasDataURL(path, obj = {}, callback, maxSize) {
+    canvasDataURL(path, obj = {}) {
       return new Promise((resolve, reject) => {
         let img = new Image()
         img.onabort = () => {
@@ -77,13 +76,12 @@
           // ************************* 做一个控制，直到图片压缩成需要的大小
           for (let i = 0; i < 10; i++) {
             let size = base64.length / 1024
-            if (size <= maxSize) {
+            if (size <= config.compressMinSize) {
               break
             }
             quality = (quality - 0.1)
             base64 = canvas.toDataURL('image/jpeg', quality)
           }
-          callback && callback(base64)
           resolve(base64)
         }
         img.src = path
@@ -91,12 +89,11 @@
     },
     /**
      * 文件照片压缩
-     * @param file
-     * @param w
-     * @param objDiv
-     * @param maxSize
+     * @param file 文件对象
+     * @param config 配置参数
+     * @return {Promise}
      */
-    photoCompress(file, w, objDiv, maxSize) {
+    photoCompress(file, config) {
       return new Promise((resolve, reject) => {
         let ready = new FileReader()
         /* 开始读取指定的Blob对象或File对象中的内容. 当读取操作完成时,
@@ -106,7 +103,7 @@
         let self = this
         ready.onload = function() {
           let re = this.result
-          self.canvasDataURL(re, w, objDiv, maxSize).then(base64Codes => {
+          self.canvasDataURL(re, config).then(base64Codes => {
             resolve(base64Codes)
           }).catch(err => {
             reject(err)
@@ -117,7 +114,7 @@
     /**
      * 将以base64的图片url数据转换为Blob
      * @param urlData
-     * @returns {*}
+     * @return {Blob}
      */
     convertBase64UrlToBlob(urlData) {
       let arr = urlData.split(',')
@@ -142,9 +139,10 @@
      * 选择图片
      * 支持自定义配置，单选或多选
      * @param id
+     * @return {Promise}
      */
-    selectFiles(params = {}) {
-      const {multiple, errTip} = Object.assign(configs, params)
+    selectFiles(config = {}) {
+      const {multiple, errTip} = Object.assign(configs, config)
       return new Promise((resolve, reject) => {
         const input = doc.createElement('input')
         input.type = 'file'
@@ -184,14 +182,15 @@
      */
     uploadFile(url = '', params = {}, config = {}) {
       if (!url) return
+      config = Object.assign(configs, config)
       return new Promise((resolve, reject) => {
         this.selectFiles(config).then(fileList => {
           // 大于指定大小的文件进行压缩
           const [compress, noCompress] = [[], []]
           for (let i = 0, l = fileList.length; i < l; i++) {
             const file = fileList[i]
-            file.size / 1024 > limitSize
-              ? compress.push(this.photoCompress(file, {}, null, maxSize))
+            file.size / 1024 > config.compressLimitSize
+              ? compress.push(this.photoCompress(file, config))
               : noCompress.push(file)
           }
           const form = new FormData() // FormData 对象
@@ -201,11 +200,11 @@
               form.append(key, params[key])
             }
           }
-          // 未压缩文件
+          // 未压缩的文件
           noCompress.map(file => {
             form.append('file', file)
           })
-          // 压缩文件
+          // 压缩的文件
           Promise.all(compress).then(files => {
             files.map(base64Codes => {
               form.append('file', this.convertBase64UrlToBlob(base64Codes), 'file_' + Date.parse(new Date()) + '.jpg')

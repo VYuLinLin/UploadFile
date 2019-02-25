@@ -22,7 +22,7 @@
       width: 100px;
       height: 100px;
       margin: 10px;
-      box-shadow: 1px 1px 10px;
+      box-shadow: 1px 1px 10px #666;
     }
     .buttons button {
       border: none;
@@ -50,6 +50,10 @@
       <button onclick="selectImgs('content3', 3)">选择图像-多选-限制张数</button>
       <div class="content3"></div>
     </li>
+    <li>
+      <button onclick="uploadFile()">上传图片-单选</button>
+      <div class="content4"></div>
+    </li>
   </ul>
   <script src="./uploadFile.js"></script>
   <script src="./utils.js"></script>
@@ -67,6 +71,17 @@
         }
       }).catch(err => {
         alert(err.message)
+      })
+    }
+    // 上传图片
+    function uploadFile() {
+      const p = {
+        param: 123456
+      }
+      pluginUploadFile.uploadFile('http://www.w3school.com.cn/tiy/v.asp', p).then(res => {
+        alert('上传成功')
+      }).catch(err => {
+        alert('上传失败')
       })
     }
   </script>
