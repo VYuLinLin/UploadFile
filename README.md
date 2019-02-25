@@ -1,2 +1,2 @@
 # UploadFile
-一个基于JavaScript原生的移动端图片上传插件
+纯JavaScript的图片上传方法

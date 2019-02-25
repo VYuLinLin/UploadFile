@@ -1,21 +1,19 @@
 var commons = {
-  getFileData(file) {
+  getFileDataToBase64(file) {
     return new Promise((resolve, reject) => {
       let reader = new FileReader()
       reader.readAsDataURL(file)
       reader.onload = function() {
-        let result = this.result
-        resolve(result)
+        resolve(this.result)
       }
       reader.onerror = function() {
-        let result = this.result
-        reject(result)
+        reject(this.result)
       }
     })
   },
   async creatImg(file) {
     const img = document.createElement('img')
-    img.src = await this.getFileData(file)
+    img.src = await this.getFileDataToBase64(file)
     return img
   }
 }

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>图像上传插件</title>
+  <title>图像上传</title>
   <style>
     * {
       margin: 0;
@@ -12,53 +12,61 @@
     }
     ul {
       list-style-type: none;
+      text-align: center;
+    }
+    ul li div {
+      display: flex;
+      overflow: auto;
+    }
+    ul li img {
+      width: 100px;
+      height: 100px;
+      margin: 10px;
+      box-shadow: 1px 1px 10px;
     }
     .buttons button {
       border: none;
       display: inline-block;
       background-color: #256ef6;
       color: white;
-      width: 33%;
       height: 2em;
-      border-radius: 1em;
-      margin-top: 10px;
+      border-radius: 4px;
+      margin: 10px auto;
+      padding: 0 10px;
     }
   </style>
 </head>
 <body>
   <ul class="buttons">
     <li>
-      <button onclick="selectSingle()">选择图像-单选</button>
+      <button onclick="selectImgs('content1')">选择图像-单选</button>
       <div class="content1"></div>
     </li>
     <li>
-      <button onclick="selectMultiple()">选择图像-多选</button>
+      <button onclick="selectImgs('content2', 'multiple')">选择图像-多选</button>
       <div class="content2"></div>
+    </li>
+    <li>
+      <button onclick="selectImgs('content3', 3)">选择图像-多选-限制张数</button>
+      <div class="content3"></div>
     </li>
   </ul>
   <script src="./uploadFile.js"></script>
-  <script src="./example.js"></script>
+  <script src="./utils.js"></script>
   <script>
-    let content1 = document.querySelector('.content1')
-    // 单选
-    function selectSingle() {
-      pluginUploadFile.selectFiles().then(fileList => {
-        const elImg = commons.creatImg(fileList[0])
-        console.log(fileList, elImg)
-        // content1.appendChild(elImg)
-      }).catch(err => {
-        console.log(err)
-      })
-    }
-    // 多选
-    function selectMultiple() {
+    // 选择图像
+    function selectImgs(elName, multiple) {
+      const el = document.querySelector(`.${elName}`)
       pluginUploadFile.selectFiles({
-        multiple: 'multiple',
-        filesMaxNo: 3
-      }).then(res => {
-        console.log(res)
+        multiple
+      }).then(fileList => {
+        for (let i = 0, l = fileList.length; i < l; i++) {
+          commons.creatImg(fileList[i]).then(imgEl => {
+            el.appendChild(imgEl)
+          })
+        }
       }).catch(err => {
-        console.log(err)
+        alert(err.message)
       })
     }
   </script>

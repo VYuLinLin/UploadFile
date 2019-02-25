@@ -10,8 +10,7 @@
 ;(function(win, doc) {
   // 全局配置
   var configs = {
-    isMultiple: false, // 是否多选
-    filesMaxNo: 1, // 单次上传的最大张数
+    multiple: undefined, // 单次上传的最大张数
     compressLimitSize: 1024, // 压缩触发界限
     compressMaxSize: 500, // 图片最大压缩值
     errTip: {
@@ -20,6 +19,8 @@
       2: '单次最多上传$1张图片，您已选择$2张图片',
     }
   }
+
+  // api
   var uploadFileApi = {
     /**
      * 初始化配置 (例如是否支持多选，图片大于多少才压缩等)
@@ -143,13 +144,13 @@
      * @param id
      */
     selectFiles(params = {}) {
-      const {isMultiple, filesMaxNo, errTip} = Object.assign(configs, params)
+      const {multiple, errTip} = Object.assign(configs, params)
       return new Promise((resolve, reject) => {
         const input = doc.createElement('input')
         input.type = 'file'
         input.accept = 'image/*'
         input.style.display = 'none'
-        ;(isMultiple || filesMaxNo > 1) && (input.multiple = 'multiple')
+        multiple && (input.multiple = 'multiple')
         input.addEventListener('change', e => {
           if (!e || !e.target || !e.target.files) return reject({
             code: 0,
@@ -160,10 +161,10 @@
             code: 1,
             message: errTip[1]
           })
-          if (files.length > filesMaxNo) {
+          if (files.length > multiple) {
             reject({
               code: 2,
-              message: errTip[2] && errTip[2].replace(/\$1/g, filesMaxNo).replace(/\$2/g, files.length)
+              message: errTip[2] && errTip[2].replace(/\$1/g, multiple).replace(/\$2/g, files.length)
             })
             return
           }
