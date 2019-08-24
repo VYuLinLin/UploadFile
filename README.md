@@ -1,4 +1,5 @@
 # UploadFile
+[试一试](https://vyulinlin.github.io/UploadFile/index.html)
 纯JavaScript选择图片并上传的方法
 
 ## 实现逻辑
